@@ -12,8 +12,8 @@ const fetchMyIP = function(callback) {
   //use request to fetch IP address from JSON API
   needle.get('https://api.ipify.org?format=json', (error, response, body) => {
     if (error) {
-     return callback(error, null);
-     }
+      return callback(error, null);
+    }
     //if non-200 status, assume server error
     if (response.statusCode !== 200) {
       const msg = `Status Code ${response.statusCode} when fetching IP. Response: ${body}`;
@@ -25,6 +25,27 @@ const fetchMyIP = function(callback) {
     callback(null, ip);
   });
 };
+
+///////
+
+const fetchCoordsByIP = function(ip, callback) {
+  needle.get(`http://ipwho.is/${ip}`, (error, response, body) => {
+    if (error) {
+      callback(error, null);
+      return;
+    }
+    //check if 'success' is true or not
+    if (!body.success) {
+      const message = `success status was ${body.success}. Server says ${body.message} when fetching for IP ${body.ip}`;
+      callback(Error(message), null);
+      return;
+    }
+    //if all good, get latitude and longitude
+    const latitude = body.latitude;
+    const longitude = body.longitude;
+    callback(null, {latitude, longitude});
+  });
+};
   
 //export
-module.exports = { fetchMyIP }
+module.exports = { fetchMyIP, fetchCoordsByIP };
