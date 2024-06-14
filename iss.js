@@ -46,6 +46,30 @@ const fetchCoordsByIP = function(ip, callback) {
     callback(null, {latitude, longitude});
   });
 };
+
+
+/////////
+
+const fetchISSFlyOverTimes = function(coords, callback) {
+  //get url for api request with coordinates lat and lon
+  const url = `https://iss-flyover.herokuapp.com/json/?lat=${coords.latitude}&lon=${coords.longitude}`;
+  //make htt get request
+  needle.get(url, (error, response, body) => {
+    //check for error with request, if error, pass error to callback
+    if (error) {
+      return callback(error, null);
+    }
+    //if status code not 200, make error msg and pass it to callback
+    if (response.statusCode !== 200) {
+      
+      callback(Error(`Status Code ${response.statusCode} when fetching ISS pass times: ${body}`), null);
+      return;
+    }
+    
+    const passes = body.response;
+    callback(null, passes);
+  });
+};
   
 //export
-module.exports = { fetchMyIP, fetchCoordsByIP };
+module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes };
